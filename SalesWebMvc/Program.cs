@@ -7,8 +7,26 @@ builder.Services.AddDbContext<SalesWebMvcContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<SeedingService>();
 
 var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
+{
+    // Execute o método Seed() quando estiver em modo de desenvolvimento
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<SalesWebMvcContext>();
+
+        // Garanta que o banco de dados seja criado
+        context.Database.EnsureCreated();
+
+        var seedingService = services.GetRequiredService<SeedingService>();
+        seedingService.Seed();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
