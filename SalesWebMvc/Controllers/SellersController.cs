@@ -36,6 +36,13 @@ namespace SalesWebMvc.Controllers
         [HttpPost]
         public IActionResult Create([FromForm] Seller seller)
         {
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
+
             seller.BirthDate = seller.BirthDate.ToUniversalTime();
             _sellerService.Insert(seller);
             return RedirectToAction("Index");
@@ -105,7 +112,14 @@ namespace SalesWebMvc.Controllers
         [HttpPost]
         public IActionResult Edit(int? id, Seller seller)
         {
-            if(id != seller.Id)
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
+
+            if (id != seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
